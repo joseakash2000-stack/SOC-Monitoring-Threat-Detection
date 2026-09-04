@@ -1,0 +1,31 @@
+# Splunk / local lab data
+*.log
+*.pid
+*.lock
+
+# Suricata runtime output
+suricata.log
+eve.json
+fast.log
+stats.log
+
+# Packet captures
+*.pcap
+*.pcapng
+
+# Local OS / editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Python / temporary files
+__pycache__/
+*.pyc
+*.tmp
+*.temp
+
+# Local secrets / environment files
+.env
+*.key
+*.pem
