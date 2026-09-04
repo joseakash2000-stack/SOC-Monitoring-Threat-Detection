@@ -6,7 +6,7 @@ A hands-on SOC L1 home lab demonstrating network threat detection, SIEM monitori
 
 ## Project Overview
 
-This project simulates a small Security Operations Center (SOC) workflow using **Suricata IDS**, **Snort++**, and **Splunk SIEM**. Network and security events are generated in a controlled lab, detected by IDS rules, forwarded as structured logs, and investigated using Splunk searches and dashboards.
+This project simulates a small Security Operations Center (SOC) workflow using **Suricata IDS** and **Splunk SIEM**. Controlled network security events are detected by Suricata, written as EVE JSON telemetry, forwarded into Splunk, enriched with threat intelligence metadata, and investigated using SPL and dashboards.
 
 The project focuses on the practical workflow expected from a **SOC L1 / Tier 1 Analyst**:
 
@@ -16,53 +16,46 @@ The project focuses on the practical workflow expected from a **SOC L1 / Tier 1 
 
 - Build a practical SOC monitoring environment
 - Monitor network traffic for suspicious activity
-- Configure IDS detection rules using Suricata and Snort++
+- Configure and test Suricata detection rules
 - Generate controlled security events for testing
 - Forward Suricata EVE JSON logs into Splunk
 - Investigate alerts using SPL
 - Analyze source/destination IPs, ports, protocols, signatures, and severity
 - Perform alert triage and distinguish relevant security events from noise
-- Map detections to MITRE ATT&CK techniques
+- Enrich detections with CVSS, CVE, MITRE ATT&CK, threat category, and recommendations
 - Develop a SOC monitoring dashboard
 - Practice repeatable L1 investigation and escalation workflows
 
 ## Architecture
 
 ```text
-                         Network / Internet
-                                |
-                         [ pfSense / Lab Network ]
-                                |
-                    +-----------+-----------+
-                    |                       |
-               [ Kali Linux ]         [ Ubuntu ]
-                    |                       |
-                    +-----------+-----------+
-                                |
-                    +-----------+-----------+
-                    |                       |
-             [ Suricata IDS ]        [ Snort++ IDS ]
-                    |                       |
-              EVE JSON Logs          Detection Alerts
-                    |                       |
-                    +-----------+-----------+
-                                |
-                         [ Splunk UF ]
-                                |
-                                v
-                       [ Splunk Enterprise ]
-                                |
-                    +-----------+-----------+
-                    |                       |
-              SPL Investigation       SOC Dashboard
-                    |                       |
-                    +-----------+-----------+
-                                |
-                         Alert Triage
-                                |
-                    MITRE ATT&CK Mapping
-                                |
-                    Recommendation / Escalation
+        Controlled Lab Traffic
+                 |
+        +--------+--------+
+        |                 |
+   Kali Linux         Ubuntu
+        |                 |
+        +--------+--------+
+                 |
+          [ Suricata IDS ]
+                 |
+          Suricata EVE JSON
+                 |
+          [ Splunk UF ]
+                 |
+          [ Splunk Enterprise ]
+                 |
+        +--------+--------+
+        |                 |
+   SPL Investigation   SOC Dashboard
+        |                 |
+        +--------+--------+
+                 |
+           Alert Triage
+                 |
+        MITRE ATT&CK Mapping
+                 |
+       Recommendation / Escalation
 ```
 
 ## Technologies & Tools
@@ -70,10 +63,9 @@ The project focuses on the practical workflow expected from a **SOC L1 / Tier 1 
 | Category | Tools |
 |---|---|
 | SIEM | Splunk Enterprise, Splunk Universal Forwarder |
-| IDS / Detection | Suricata, Snort++ |
+| IDS / Detection | Suricata |
 | Network Analysis | Wireshark, tcpdump |
 | Network Scanning | Nmap |
-| Firewall / Network | pfSense |
 | Operating Systems | Kali Linux, Ubuntu, Windows |
 | Virtualization | VirtualBox |
 | Threat Framework | MITRE ATT&CK |
@@ -82,49 +74,46 @@ The project focuses on the practical workflow expected from a **SOC L1 / Tier 1 
 
 ## Detection Coverage
 
-The lab contains controlled detections for common SOC investigation scenarios, including:
+The lab contains controlled detections and investigation scenarios including:
 
 - ICMP ping activity
 - HTTP traffic / suspicious HTTP activity
 - SSH access attempts
 - SSH brute-force style activity
 - Network and port scanning
-- Port-based detection scenarios
+- Vulnerability and exploit-attempt signatures observed in Suricata telemetry
 
 Detection rules are stored under:
 
 ```text
 detection-rules/
-├── snort/
-│   └── local.rules
 └── suricata/
     └── soc_demo.rules
 ```
 
 ## Splunk Investigation
 
-The project uses Splunk SPL to investigate and correlate security events.
+The project uses Splunk SPL to investigate and correlate Suricata security events.
 
-Example investigation areas:
+Base search:
 
-```text
+```spl
 index=main sourcetype=suricata
 ```
 
-Key fields investigated include:
+Key fields include:
 
 - `src_ip`
 - `dest_ip`
 - `src_port`
 - `dest_port`
-- `protocol`
+- `proto`
 - `alert.signature`
 - `alert.severity`
 - `alert.category`
-- `sid`
 - Timestamp / event time
 
-The repository contains reusable searches for alert analysis, event statistics, severity analysis, and dashboard panels.
+The repository contains reusable searches for event statistics, severity analysis, alert enrichment, correlation, and investigation.
 
 See:
 
@@ -157,7 +146,7 @@ documentation/investigation-workflow.md
 
 ## MITRE ATT&CK Mapping
 
-Detections are mapped to relevant MITRE ATT&CK tactics and techniques to practice threat-informed alert analysis.
+The project uses MITRE ATT&CK to provide behavioral context for selected Suricata detections.
 
 Mapping documentation:
 
@@ -165,20 +154,21 @@ Mapping documentation:
 mitre/attack-mapping.md
 ```
 
-The goal is not simply to identify an alert, but to understand **what attacker behavior the alert may represent** and how it fits into a broader attack chain.
+ATT&CK mappings are treated as analyst classifications for the lab and should be validated against the actual event context. A detection does not by itself prove that an attack succeeded.
 
 ## SOC Dashboard
 
-Splunk dashboard panels are designed to provide a high-level SOC monitoring view, including:
+The Splunk dashboard provides a high-level monitoring and investigation view including:
 
 - Total security events
-- Alert severity distribution
-- Recent security alerts
-- Detection signatures
-- Source IP activity
-- Destination IP activity
+- Critical / High / Medium / Low alert counts
+- Severity distribution
+- Alert categories and threat categories
 - Security event trends
-- Investigation-focused alert details
+- Source and destination activity
+- Top signatures and destination ports
+- Latest enriched security alerts
+- Critical and High/Critical investigation tables
 
 Dashboard documentation:
 
@@ -192,8 +182,6 @@ splunk/dashboard.md
 SOC-Monitoring-Threat-Detection/
 │
 ├── detection-rules/
-│   ├── snort/
-│   │   └── local.rules
 │   └── suricata/
 │       └── soc_demo.rules
 │
@@ -220,9 +208,9 @@ SOC-Monitoring-Threat-Detection/
 
 ### SOC / Blue Team
 
-- Alert triage
+- L1 alert triage
 - Security event analysis
-- Log analysis
+- Log investigation
 - Incident investigation workflow
 - Detection engineering fundamentals
 - Severity classification
@@ -234,12 +222,13 @@ SOC-Monitoring-Threat-Detection/
 - Splunk data ingestion
 - SPL searches
 - Event filtering and aggregation
+- Lookup-based threat enrichment
 - Security dashboards
 - Log-based investigation
 
 ### Network Security
 
-- IDS rule creation
+- Suricata IDS
 - Network traffic analysis
 - TCP/IP and common protocols
 - Port and service analysis
@@ -256,11 +245,10 @@ SOC-Monitoring-Threat-Detection/
 
 ## Evidence & Screenshots
 
-Screenshots will be added to document the working lab and investigation process, including:
+The repository contains investigation evidence demonstrating:
 
 - Splunk SOC dashboard
 - Suricata alerts
-- Snort detections
 - SPL investigations
 - Network traffic analysis
 - Alert triage examples
@@ -273,19 +261,16 @@ screenshots/
 
 ## Setup Notes
 
-This repository primarily contains **configuration examples, detection rules, investigation queries, and documentation**. The complete lab requires separately installed and configured instances of the listed security tools.
+This repository contains **configuration examples, Suricata rules, investigation queries, enrichment documentation, screenshots, and SOC workflow documentation**. The complete lab requires separately installed and configured instances of the listed tools.
 
 The environment is intended for a controlled lab. Do not deploy detection rules or generate scanning traffic against systems you do not own or have explicit authorization to test.
 
 ## Future Enhancements
 
-Planned improvements include:
-
-- Add real investigation case studies
 - Add sanitized sample logs
-- Add additional MITRE ATT&CK detections
+- Add additional Suricata detections
 - Improve dashboard visualizations
-- Add alert severity enrichment using lookup data
+- Add additional MITRE ATT&CK coverage
 - Add a lightweight alert/ticket tracking workflow
 - Add automated detection validation
 - Add more Windows endpoint telemetry
@@ -300,4 +285,4 @@ GitHub: `joseakash2000-stack`
 
 ## Disclaimer
 
-This project is created for **educational, defensive security, and SOC analyst portfolio purposes**. All testing should be performed only in systems and networks where the tester has explicit authorization.
+This project is created for **educational, defensive security, and SOC analyst portfolio purposes**. All testing should be performed only in systems and networks where the tester has explicit authorization to test.
