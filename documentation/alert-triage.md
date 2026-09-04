@@ -77,7 +77,7 @@ The detection indicates an attempted path traversal / unauthenticated file-read 
 | Field | Assessment |
 |---|---|
 | Severity | Medium |
-| CVSS | 5.3 |
+| CVSS | N/A |
 | CVE | N/A |
 | MITRE Tactic | Discovery |
 | MITRE Technique | Network Service Discovery |
@@ -87,7 +87,7 @@ The detection indicates an attempted path traversal / unauthenticated file-read 
 
 ### Analyst Assessment
 
-The alert indicates activity associated with Nmap-based network service discovery. This may represent authorized security testing or reconnaissance preceding an attack, so the analyst should establish whether the source is expected or unauthorized.
+The alert indicates activity associated with Nmap-based network service discovery. A network scan is an observed behavior, not a vulnerability with its own CVSS score, so CVSS is not applicable here. The analyst should establish whether the source is expected or unauthorized.
 
 ### L1 Investigation
 
