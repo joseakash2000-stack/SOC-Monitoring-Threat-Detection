@@ -1,0 +1,15 @@
+# Suricata SOC Lab - Custom Detection Rules
+# Purpose: Controlled lab detections used for Splunk SOC monitoring and L1 investigation.
+# These rules are intended for authorized lab traffic only.
+
+# ICMP ping activity
+alert icmp any any -> any any (msg:"SOC DEMO - ICMP Ping Activity"; sid:1000001; rev:1;)
+
+# HTTP traffic to port 80
+alert http any any -> any 80 (msg:"SOC DEMO - HTTP Traffic Observed"; sid:1000002; rev:1;)
+
+# SSH access attempt
+alert tcp any any -> any 22 (msg:"SOC DEMO - SSH Access Attempt"; flags:S; sid:1000003; rev:1;)
+
+# Repeated SSH connection attempts / brute-force style activity
+alert tcp any any -> any 22 (msg:"SOC DEMO - SSH Brute Force"; flags:S; threshold:type threshold, track by_src, count 5, seconds 60; sid:1000004; rev:1;)
