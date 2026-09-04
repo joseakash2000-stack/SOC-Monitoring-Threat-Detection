@@ -10,7 +10,7 @@ Primary data source:
 index=main sourcetype=suricata
 ```
 
-The dashboard uses the `suricata_threat_lookup.csv` lookup to enrich detected signatures with SOC severity, CVSS, CVE, MITRE ATT&CK information, threat category, and analyst recommendation.
+The dashboard uses the `suricata_threat_lookup.csv` lookup to enrich detected signatures with SOC severity, CVSS, CVE, MITRE ATT&CK information, threat category, and analyst recommendation. The sanitized lookup is included in `splunk/lookups/` for reproducibility.
 
 ---
 
@@ -41,18 +41,13 @@ Recommended workflow:
 
 ### 1. Total Events
 
-**SPL:**
-
 ```spl
 index=main sourcetype=suricata
 | stats count
 ```
 
-**Visualization:** Single Value
-
+**Visualization:** Single Value  
 **Purpose:** Displays the total number of Suricata events within the selected time range.
-
----
 
 ### 2. Critical Alerts
 
@@ -64,11 +59,8 @@ index=main sourcetype=suricata
 | stats count
 ```
 
-**Visualization:** Single Value
-
+**Visualization:** Single Value  
 **Purpose:** Highlights alerts classified as Critical by the SOC threat lookup.
-
----
 
 ### 3. High Alerts
 
@@ -80,28 +72,21 @@ index=main sourcetype=suricata
 | stats count
 ```
 
-**Visualization:** Single Value
-
+**Visualization:** Single Value  
 **Purpose:** Shows High-severity detections requiring analyst attention.
-
----
 
 ### 4. Medium Alerts
 
 Uses the same lookup enrichment and filters for `soc_severity="Medium"`.
 
-**Visualization:** Single Value
-
+**Visualization:** Single Value  
 **Purpose:** Provides visibility into medium-priority security activity.
-
----
 
 ### 5. Low Alerts
 
 Uses the same lookup enrichment and filters for `soc_severity="Low"`.
 
-**Visualization:** Single Value
-
+**Visualization:** Single Value  
 **Purpose:** Shows lower-priority detections that may require monitoring or contextual investigation.
 
 ---
@@ -119,11 +104,8 @@ index=main sourcetype=suricata
 | sort - count
 ```
 
-**Visualization:** Column/Bar Chart
-
+**Visualization:** Column/Bar Chart  
 **Purpose:** Compares the volume of alerts across SOC severity levels.
-
----
 
 ### 7. Alert Categories
 
@@ -135,11 +117,8 @@ index=main sourcetype=suricata
 | sort - count
 ```
 
-**Visualization:** Bar Chart
-
+**Visualization:** Bar Chart  
 **Purpose:** Identifies the major Suricata alert categories represented in the environment.
-
----
 
 ### 8. Alert Activity by Attack Type
 
@@ -152,8 +131,7 @@ index=main sourcetype=suricata
 | sort - count
 ```
 
-**Visualization:** Bar Chart
-
+**Visualization:** Bar Chart  
 **Purpose:** Groups enriched detections into investigation-oriented threat categories.
 
 ---
@@ -170,11 +148,8 @@ index=main sourcetype=suricata
 | timechart span=5m count
 ```
 
-**Visualization:** Line Chart
-
+**Visualization:** Line Chart  
 **Purpose:** Shows the volume of classified security events over time and helps identify spikes in activity.
-
----
 
 ### 10. Security Alert Timeline
 
@@ -186,11 +161,8 @@ index=main sourcetype=suricata
 | timechart span=1h count by soc_severity
 ```
 
-**Visualization:** Line/Area Chart
-
+**Visualization:** Line/Area Chart  
 **Purpose:** Tracks severity-specific alert activity over time.
-
----
 
 ### 11. Events by Hour
 
@@ -201,15 +173,14 @@ index=main sourcetype=suricata
 | sort _time
 ```
 
-**Visualization:** Column or Line Chart
-
+**Visualization:** Column or Line Chart  
 **Purpose:** Shows hourly event volume and helps identify periods of increased network activity.
 
 ---
 
 ## Source, Destination & Network Analysis
 
-### 12. Top Source Attackers
+### 12. Top Source IPs
 
 ```spl
 index=main sourcetype=suricata
@@ -218,11 +189,8 @@ index=main sourcetype=suricata
 | head 10
 ```
 
-**Visualization:** Bar Chart
-
-**Purpose:** Identifies source IP addresses generating the highest number of Suricata events.
-
----
+**Visualization:** Bar Chart  
+**Purpose:** Identifies source IP addresses generating the highest number of Suricata events. High volume alone does not establish that a source is malicious.
 
 ### 13. Top Targeted Systems
 
@@ -233,11 +201,8 @@ index=main sourcetype=suricata
 | head 10
 ```
 
-**Visualization:** Bar Chart
-
+**Visualization:** Bar Chart  
 **Purpose:** Identifies destination systems receiving the highest volume of detected activity.
-
----
 
 ### 14. Top Destination Ports
 
@@ -248,11 +213,8 @@ index=main sourcetype=suricata
 | head 10
 ```
 
-**Visualization:** Bar Chart
-
+**Visualization:** Bar Chart  
 **Purpose:** Highlights the destination services and ports most frequently associated with observed activity.
-
----
 
 ### 15. Protocol Distribution
 
@@ -262,11 +224,8 @@ index=main sourcetype=suricata
 | sort - count
 ```
 
-**Visualization:** Bar Chart
-
+**Visualization:** Bar Chart  
 **Purpose:** Provides a high-level view of observed network protocols.
-
----
 
 ### 16. Source / Destination Port Activity
 
@@ -277,11 +236,8 @@ index=main sourcetype=suricata
 | head 20
 ```
 
-**Visualization:** Column Chart
-
+**Visualization:** Column Chart  
 **Purpose:** Highlights source IP and destination-port combinations generating significant activity.
-
----
 
 ### 17. Top Source / Destination Pairs
 
@@ -292,8 +248,7 @@ index=main sourcetype=suricata
 | head 20
 ```
 
-**Visualization:** Table
-
+**Visualization:** Table  
 **Purpose:** Helps analysts identify frequently observed communication or attack relationships between source and destination systems.
 
 ---
@@ -309,11 +264,8 @@ index=main sourcetype=suricata
 | head 10
 ```
 
-**Visualization:** Bar Chart
-
+**Visualization:** Bar Chart  
 **Purpose:** Identifies the most frequently triggered Suricata signatures.
-
----
 
 ### 19. Latest Security Alerts
 
@@ -327,11 +279,8 @@ index=main sourcetype=suricata
 | head 20
 ```
 
-**Visualization:** Table
-
+**Visualization:** Table  
 **Purpose:** Provides an analyst-friendly queue of recent enriched security detections.
-
----
 
 ### 20. Critical Alert Investigation
 
@@ -345,11 +294,8 @@ index=main sourcetype=suricata
 | head 20
 ```
 
-**Visualization:** Table
-
+**Visualization:** Table  
 **Purpose:** Focuses the analyst view on Critical detections and associated enrichment.
-
----
 
 ### 21. High / Critical Alerts
 
@@ -364,15 +310,12 @@ index=main sourcetype=suricata
 | head 20
 ```
 
-**Visualization:** Table
-
+**Visualization:** Table  
 **Purpose:** Provides a prioritized view of the highest-severity detections for L1 triage.
 
 ---
 
 ## Analyst Workflow
-
-The dashboard supports the following L1 workflow:
 
 ```text
 Monitor Dashboard
