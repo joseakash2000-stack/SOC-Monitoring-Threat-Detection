@@ -1,0 +1,3 @@
+timestamp,signature,src_ip,dest_ip,dest_port,severity
+2026-08-08T10:15:00,SOC DEMO - SSH Brute Force,192.168.1.16,192.168.1.11,22,Critical
+2026-08-08T10:30:00,ET SCAN Possible Nmap User-Agent Observed,192.168.1.16,192.168.1.11,80,Medium
