@@ -113,7 +113,7 @@ The companion Splunk searches in [`../splunk/case-management.md`](../splunk/case
 
 ## Portfolio Value
 
-This workflow demonstrates the operational L1 concepts that are often missing from junior portfolios:
+This workflow demonstrates the operational L1 concepts:
 
 - Alert disposition
 - True-positive / false-positive validation
