@@ -5,41 +5,31 @@
   Network Detection • SIEM Monitoring • Alert Triage • Case Management • Endpoint Telemetry • MITRE ATT&CK
 </p>
 
-A controlled defensive SOC lab demonstrating the analyst workflow from network detection and SIEM ingestion through alert validation, true/false-positive disposition, investigation, threat enrichment, MITRE ATT&CK mapping, escalation, case documentation, and endpoint telemetry.
+A controlled defensive SOC lab demonstrating the analyst workflow from network detection and SIEM ingestion through alert validation, true/false-positive disposition, investigation, threat enrichment, MITRE ATT&CK mapping, escalation, case documentation, and a Windows endpoint process-creation detection.
 
 > **Environment:** Controlled virtual lab for defensive security training and SOC analyst portfolio practice.
 
 ## Architecture
 
 ```text
-Controlled Lab Traffic
-        ↓
-    Suricata IDS
-        ↓
-   EVE JSON Logs
-        ↓
- Splunk Universal Forwarder
-        ↓
-  Splunk Enterprise
-        ↓
- SPL Investigation + Enrichment
-        ↓
- SOC Dashboard
-        ↓
- Alert Triage / Case / MITRE
-        ↓
- Windows Sysmon Telemetry (Extension)
+Controlled Lab Traffic → Suricata IDS → EVE JSON Logs
+→ Splunk Universal Forwarder → Splunk Enterprise
+→ SPL Investigation + Enrichment → SOC Dashboard
+→ Alert Triage / Case / MITRE
+
+Windows Lab Endpoint → Windows Security Audit
+→ Event ID 4688 (Process Creation) → Splunk Enterprise
+→ Endpoint Detection → Alert Action → L1 Triage / MITRE / Case
 ```
 
 ## SOC L1 Workflow
 
 ```text
-Detect → Validate → Investigate →
-Classify → Enrich → Map →
-Create Case → Escalate When Required → Document → Close
+Detect → Validate → Investigate → Classify → Enrich → Map
+→ Create Case → Escalate When Required → Document → Close
 ```
 
-The project explicitly models **true-positive / false-positive validation** rather than treating every IDS signature as proof of compromise.
+The project explicitly models true-positive / false-positive validation rather than treating every IDS signature as proof of compromise.
 
 ## Key Capabilities
 
@@ -50,9 +40,10 @@ The project explicitly models **true-positive / false-positive validation** rath
 - Severity classification and CVSS/CVE context
 - MITRE ATT&CK mapping and threat enrichment
 - Source/destination, port, protocol and timeline analysis
-- Incident/case tracking using a lightweight Splunk lookup workflow
-- Evidence-based escalation criteria and closure workflow
-- Windows Sysmon endpoint telemetry extension for process, network, file, registry and DNS investigation
+- Lightweight Splunk lookup case tracking and escalation workflow
+- Windows Security Event ID 4688 process-creation monitoring
+- PowerShell-to-CMD process relationship detection in a controlled Windows lab
+- Scheduled Splunk alerting with Log Event output for alert-pipeline validation
 - Basic Python alert-processing automation
 - Nmap, Wireshark and tcpdump for controlled network validation
 
@@ -65,6 +56,7 @@ The project explicitly models **true-positive / false-positive validation** rath
 | SSH brute force | Investigate repeated credential-attack behavior |
 | Nmap scanning | Analyze reconnaissance / Network Service Discovery |
 | Vulnerability / exploit signatures | Investigate vulnerability-related network activity |
+| PowerShell → CMD process creation | Validate Windows endpoint process telemetry and L1 triage |
 
 Custom Suricata rules are maintained in `detection-rules/suricata/soc_demo.rules`.
 
@@ -76,114 +68,66 @@ Primary network telemetry:
 index=main sourcetype=suricata
 ```
 
-The repository contains reusable SPL for:
-
-- Event volume and trends
-- Severity distribution
-- Top sources and targeted systems
-- Ports and protocols
-- Source/destination correlation
-- Critical and High alert investigation
-- Signature-specific investigation
-- Lookup-based threat enrichment
-- Alert disposition and case tracking
-- Windows Sysmon endpoint investigation
+Reusable SPL covers event volume, severity, sources, targets, ports, protocols, source/destination correlation, signature-specific investigation, lookup-based enrichment, alert disposition, case tracking, and Windows Event ID 4688 endpoint investigation.
 
 See [`splunk/searches.md`](splunk/searches.md), [`splunk/case-management.md`](splunk/case-management.md), and [`splunk/endpoint-detections.md`](splunk/endpoint-detections.md).
 
 ## Alert Triage & Case Management
 
-The project uses a structured L1 decision model:
-
 ```text
-Alert Intake
-    ↓
-Validate Detection
-    ↓
-True Positive / False Positive / Benign / Needs Investigation
-    ↓
-Investigate Context
-    ↓
-Assign Severity
-    ↓
-Enrich + MITRE ATT&CK
-    ↓
-Create / Update Case
-    ↓
-Escalate When Evidence Supports Incident
-    ↓
-Document Findings
-    ↓
-Resolve / Close
+Alert Intake → Validate Detection
+→ TP / FP / Benign / Needs Investigation
+→ Investigate Context → Assign Severity
+→ Enrich + MITRE → Create / Update Case
+→ Escalate When Evidence Supports Incident
+→ Document → Resolve / Close
 ```
 
-The case-management layer is deliberately described as a **simulation**. It does not claim ServiceNow, Jira, SOAR, or production ITSM integration.
+The case-management layer is deliberately a **simulation**. It does not claim ServiceNow, Jira, SOAR, or production ITSM integration.
 
 See [`documentation/incident-case-management.md`](documentation/incident-case-management.md).
 
-## Windows Endpoint Telemetry Extension
+## Windows Endpoint Detection
 
-The endpoint extension adds Sysmon telemetry to the existing Splunk workflow:
+The verified endpoint implementation uses native Windows Security auditing and Event ID 4688 rather than claiming a commercial EDR integration.
 
-```text
-Windows Lab Endpoint → Sysmon → Windows Event Log
-→ Splunk Universal Forwarder → Splunk Enterprise
-→ Endpoint Investigation → MITRE / Case Workflow
-```
+The demonstrated detection identifies **PowerShell spawning `cmd.exe`** and extracts the user, new process, creator process, and process IDs from Event ID 4688.
 
-Focused Sysmon events:
+The controlled test was classified as **Benign/Expected** because it was intentionally generated to validate the detection. The evidence does not establish a malicious command line or compromise.
 
-- Event ID 1 — Process Creation
-- Event ID 3 — Network Connection
-- Event ID 7 — Image/DLL Load
-- Event ID 10 — Process Access
-- Event ID 11 — File Creation
-- Event ID 13 — Registry Value Set
-- Event ID 22 — DNS Query
+The repository also contains a Sysmon setup/investigation guide as an optional extension. Sysmon event IDs are not presented as successfully ingested telemetry unless they are actually observed in the lab.
 
-This is an **endpoint telemetry / EDR-style investigation extension**, not a commercial EDR integration. A specific EDR product should only be added to the resume after hands-on implementation.
-
-See [`endpoint-telemetry/README.md`](endpoint-telemetry/README.md).
+See [`endpoint-telemetry/README.md`](endpoint-telemetry/README.md) and [`splunk/endpoint-detections.md`](splunk/endpoint-detections.md).
 
 ## Python Automation
 
-`scripts/ioc_log_processor.py` provides a small defensive automation exercise for exported alert CSV data. It:
-
-1. Validates required alert fields.
-2. Normalizes severity into review priority.
-3. Marks Critical/High records as `Needs Investigation`.
-4. Produces a case-ready CSV for analyst review.
-
-This demonstrates basic security automation without claiming production SOAR capability.
+`scripts/ioc_log_processor.py` provides a small defensive automation exercise for exported alert CSV data. It validates fields, normalizes severity into review priority, identifies Critical/High records for review, and produces a case-ready CSV. This demonstrates basic security automation without claiming production SOAR capability.
 
 ## Example Investigations
-
-Existing investigation scenarios include:
 
 - Drupal SQL Injection — CVE-2014-3704
 - Cisco ASA / Firepower Path Traversal — CVE-2020-3452
 - Nmap Network Scanning
 - SSH Brute Force
+- Windows PowerShell → CMD process creation — Event ID 4688
 
 A Suricata signature indicates that traffic matched a detection condition; it does **not** independently prove successful exploitation or compromise.
 
 ## Evidence & Dashboard
 
-The repository includes screenshots of the Splunk SOC dashboard and investigation views under `screenshots/`.
+The repository includes a focused evidence set under `screenshots/`:
 
-Dashboard coverage includes:
-
-- Total events
-- Critical / High / Medium / Low alerts
-- Severity distribution
-- Event trends
-- Top source IPs
-- Top targeted systems
-- Destination ports
-- Protocol distribution
-- Attack signatures
-- Latest enriched alerts
-- Investigation tables
+| Screenshot | Evidence |
+|---|---|
+| `01-suricata-alert-volume.png` | Suricata alert volume |
+| `02-l1-alert-queue.png` | L1 prioritized alert queue |
+| `03-ssh-bruteforce-investigation.png` | Enriched SSH brute-force investigation |
+| `04-nmap-correlation-investigation.png` | Nmap/source correlation |
+| `05-cisco-rv320-exploit-investigation.png` | Vulnerability/exploit alert investigation |
+| `06-windows-endpoint-detection.png` | Windows 4688 PowerShell → CMD detection |
+| `07-case-management-queue.png` | L1 case register and dispositions |
+| `08-source-activity-timeline.png` | Source activity timeline |
+| `09-final-soc-dashboard.png` | Final SOC dashboard |
 
 ## Technologies
 
@@ -191,7 +135,7 @@ Dashboard coverage includes:
 |---|---|
 | SIEM | Splunk Enterprise, Splunk Universal Forwarder, SPL |
 | Network Detection | Suricata IDS |
-| Endpoint Telemetry | Sysmon / Windows Event Logs |
+| Endpoint Telemetry | Windows Security Event Logs, Event ID 4688; Sysmon guide/extension |
 | Network Analysis | Wireshark, tcpdump, Nmap |
 | Operating Systems | Windows, Kali Linux, Ubuntu |
 | Virtualization | VirtualBox |
@@ -204,24 +148,12 @@ Dashboard coverage includes:
 ```text
 SOC-Monitoring-Threat-Detection/
 ├── detection-rules/
-│   └── suricata/soc_demo.rules
 ├── documentation/
-│   ├── alert-triage.md
-│   ├── architecture.md
-│   ├── investigation-workflow.md
-│   └── incident-case-management.md
 ├── endpoint-telemetry/
-│   └── README.md
 ├── mitre/
-│   └── attack-mapping.md
 ├── screenshots/
 ├── scripts/
-│   └── ioc_log_processor.py
 ├── splunk/
-│   ├── dashboard.md
-│   ├── searches.md
-│   ├── case-management.md
-│   └── endpoint-detections.md
 ├── .gitignore
 └── README.md
 ```
@@ -229,7 +161,6 @@ SOC-Monitoring-Threat-Detection/
 ## Skills Demonstrated
 
 ### SOC / Blue Team
-
 - L1 alert triage
 - True-positive / false-positive analysis
 - Security event investigation
@@ -240,17 +171,15 @@ SOC-Monitoring-Threat-Detection/
 - MITRE ATT&CK mapping
 
 ### SIEM
-
 - Splunk data ingestion
 - SPL searches
 - Correlation and filtering
 - Lookup-based enrichment
 - Dashboard development
-- Alert investigation
+- Alert investigation and scheduled alerting
 - Case/disposition tracking
 
 ### Network Security
-
 - Suricata IDS
 - Network traffic analysis
 - Nmap scanning analysis
@@ -259,14 +188,13 @@ SOC-Monitoring-Threat-Detection/
 - TCP/IP and common protocols
 
 ### Endpoint Security
-
-- Windows security telemetry
-- Sysmon event analysis
-- Process / network / file / registry / DNS investigation
+- Windows Security Event ID 4688
+- Process creation analysis
+- Parent/child process investigation
+- PowerShell-to-CMD detection
 - EDR/XDR investigation concepts
 
 ### Automation
-
 - Python CSV processing
 - Basic security alert normalization
 
@@ -274,7 +202,7 @@ SOC-Monitoring-Threat-Detection/
 
 This is a **controlled defensive training environment**, not a production SOC deployment.
 
-The project does not claim enterprise EDR, SOAR, ServiceNow/Jira integration, or production incident-management controls. The case register is a lightweight portfolio simulation, and the endpoint extension requires a separately configured Windows/Sysmon lab endpoint.
+The project does not claim enterprise EDR, SOAR, ServiceNow/Jira integration, or production incident-management controls. The case register is a lightweight portfolio simulation. The verified endpoint detection uses Windows Security Event ID 4688; the Sysmon directory provides an optional setup/investigation guide and should not be interpreted as proof of successfully ingested Sysmon telemetry.
 
 All scanning and security testing must be performed only against systems and networks where explicit authorization exists.
 
@@ -286,10 +214,10 @@ All scanning and security testing must be performed only against systems and net
 | [`documentation/alert-triage.md`](documentation/alert-triage.md) | L1 triage and investigation cases |
 | [`documentation/investigation-workflow.md`](documentation/investigation-workflow.md) | Investigation methodology |
 | [`documentation/incident-case-management.md`](documentation/incident-case-management.md) | Case, disposition and escalation workflow |
-| [`endpoint-telemetry/README.md`](endpoint-telemetry/README.md) | Windows/Sysmon endpoint extension |
+| [`endpoint-telemetry/README.md`](endpoint-telemetry/README.md) | Windows endpoint/Sysmon setup and investigation guide |
 | [`splunk/searches.md`](splunk/searches.md) | Network investigation SPL |
 | [`splunk/case-management.md`](splunk/case-management.md) | Case/disposition SPL |
-| [`splunk/endpoint-detections.md`](splunk/endpoint-detections.md) | Sysmon investigation SPL |
+| [`splunk/endpoint-detections.md`](splunk/endpoint-detections.md) | Windows 4688 endpoint detection SPL |
 | [`splunk/dashboard.md`](splunk/dashboard.md) | Dashboard documentation |
 | [`mitre/attack-mapping.md`](mitre/attack-mapping.md) | ATT&CK mappings |
 
