@@ -1,107 +1,109 @@
 # Windows Endpoint Telemetry Extension
 
-This extension adds Windows endpoint telemetry to the existing Suricata + Splunk SOC lab. It is designed to practice the endpoint-investigation concepts commonly used by EDR/XDR platforms without claiming a commercial EDR integration.
+This directory documents the Windows endpoint investigation extension used with the SOC lab. The **verified portfolio implementation uses Windows Security Event ID 4688 (Process Creation)** and Splunk Enterprise. Sysmon is retained as an optional setup/investigation guide and is not claimed as successfully ingested telemetry unless events are actually observed.
 
-## Architecture
+## Verified Architecture
 
 ```text
 Windows Lab Endpoint
         ↓
-      Sysmon
+Windows Security Audit Policy
         ↓
-Windows Event Log
+Event ID 4688 — Process Creation
         ↓
- Splunk Universal Forwarder
+Splunk Enterprise
         ↓
-  Splunk Enterprise
+SPL Detection
         ↓
-Endpoint Investigation SPL
+Scheduled Alert
         ↓
-MITRE ATT&CK / Case Workflow
+Alert Action / Log Event
+        ↓
+L1 Triage / MITRE / Case Workflow
 ```
 
-## Telemetry Focus
+## Verified Detection
 
-The lab focuses on these Sysmon events:
+The demonstrated detection identifies a **PowerShell process spawning `cmd.exe`** from Windows Security Event ID 4688.
 
-| Event ID | Focus |
-|---:|---|
-| 1 | Process creation |
-| 3 | Network connection |
-| 7 | Image/DLL load |
-| 10 | Process access |
-| 11 | File creation |
-| 13 | Registry value set |
-| 22 | DNS query |
+The SPL extracts:
 
-## L1 Investigation Examples
+- User
+- New process path
+- Creator/parent process path
+- New process ID
+- Creator process ID
 
-### Suspicious process creation
+The detection was validated with controlled lab activity. The resulting activity was classified as **Benign/Expected** because it was intentionally generated for detection validation. The available event does not establish a malicious command line or compromise.
+
+Example search pattern:
 
 ```spl
-index=main sourcetype=XmlWinEventLog:Microsoft-Windows-Sysmon/Operational EventCode=1
-| table _time Computer User Image CommandLine ParentImage ProcessId
+index=main sourcetype="WinEventLog:Security" EventCode=4688
+| rex field=Message "Account Name:\s+(?<user>[^\r\n]+)"
+| rex field=Message "New Process Name:\s+(?<process_path>[^\r\n]+)"
+| rex field=Message "Creator Process Name:\s+(?<parent_process>[^\r\n]+)"
+| rex field=Message "New Process ID:\s+(?<process_id>0x[0-9a-fA-F]+)"
+| rex field=Message "Creator Process ID:\s+(?<parent_process_id>0x[0-9a-fA-F]+)"
+| eval process=lower(process_path)
+| eval parent=lower(parent_process)
+| where like(process,"%cmd.exe%") AND like(parent,"%powershell.exe%")
+| eval detection_name="PowerShell Spawned CMD"
+| eval severity="Medium"
+| eval mitre_id="T1059"
+| eval mitre_technique="Command and Scripting Interpreter"
+| table _time user detection_name severity parent_process process_path process_id parent_process_id mitre_id mitre_technique
 | sort - _time
 ```
 
-Review the process image, command line, parent process, user, and execution time. Map suspicious behavior to MITRE ATT&CK only after validating the context.
+## Alert Validation
 
-### Network connections from a process
+The lab also validates the scheduled Splunk alert pipeline for this detection:
 
-```spl
-index=main sourcetype=XmlWinEventLog:Microsoft-Windows-Sysmon/Operational EventCode=3
-| table _time Computer Image SourceIp SourcePort DestinationIp DestinationPort Protocol
-| sort - _time
+```text
+Windows 4688
+    ↓
+SPL Detection
+    ↓
+Scheduled Alert
+    ↓
+Log Event Action
+    ↓
+SOC alert event
+    ↓
+Case / Triage workflow
 ```
 
-Correlate unusual process/network combinations with other alerts and the destination service.
+This demonstrates alert generation and action handling without claiming SOAR or enterprise ITSM integration.
 
-### Process access
+## Windows Event 4688 Setup
 
-```spl
-index=main sourcetype=XmlWinEventLog:Microsoft-Windows-Sysmon/Operational EventCode=10
-| table _time Computer SourceImage TargetImage GrantedAccess CallTrace
-| sort - _time
+Process Creation auditing was enabled with Windows Audit Policy. Verify the setting with:
+
+```powershell
+auditpol /get /subcategory:"Process Creation"
 ```
 
-Use this as an investigation starting point for unusual process-access behavior. Do not classify activity as malicious from Event ID 10 alone.
+The expected state for this lab is successful auditing enabled. Generate only controlled, authorized lab activity and verify Event ID 4688 in the Windows Security log before investigating it in Splunk.
 
-### File creation
+## Sysmon Extension — Optional Guide
 
-```spl
-index=main sourcetype=XmlWinEventLog:Microsoft-Windows-Sysmon/Operational EventCode=11
-| table _time Computer Image TargetFilename User
-| sort - _time
-```
+Sysmon was explored as an endpoint telemetry extension, but the portfolio evidence is **not based on claiming successful ingestion of a broad Sysmon event set**. The directory can be used as a guide for future lab expansion.
 
-### Registry modification
+Potential Sysmon investigation areas include process creation, network connections, file creation, registry changes and DNS queries. These should only be documented as implemented after the corresponding events are actually observed and ingested.
 
-```spl
-index=main sourcetype=XmlWinEventLog:Microsoft-Windows-Sysmon/Operational EventCode=13
-| table _time Computer Image TargetObject Details User
-| sort - _time
-```
-
-### DNS activity
-
-```spl
-index=main sourcetype=XmlWinEventLog:Microsoft-Windows-Sysmon/Operational EventCode=22
-| table _time Computer Image QueryName QueryStatus User
-| sort - _time
-```
-
-## Triage Workflow
+## L1 Triage Workflow
 
 ```text
 Endpoint Alert
     ↓
 Validate Host + User + Timestamp
     ↓
-Review Process / Network / File / Registry / DNS Context
+Review Parent / Child Process Context
     ↓
 Check Related Events
     ↓
-Determine True Positive / False Positive / Benign
+Determine True Positive / False Positive / Benign / Needs Investigation
     ↓
 Map MITRE ATT&CK if Supported
     ↓
@@ -112,15 +114,6 @@ Escalate if Evidence Supports Incident
 Document + Close
 ```
 
-## Setup Notes
+## Portfolio Boundary
 
-1. Install Sysmon on a Windows lab VM.
-2. Configure Sysmon using an appropriate defensive configuration for a controlled environment.
-3. Verify events in `Applications and Services Logs/Microsoft/Windows/Sysmon/Operational`.
-4. Configure Splunk Universal Forwarder to collect the Sysmon Operational channel.
-5. Confirm ingestion in Splunk before using the searches above.
-6. Generate only authorized lab activity and document the resulting events.
-
-## Important Portfolio Boundary
-
-This directory demonstrates **endpoint telemetry and EDR-style investigation concepts**. It does not claim that the project uses CrowdStrike, Microsoft Defender for Endpoint, SentinelOne, or another commercial EDR product. Add a specific EDR product to the resume only after completing and documenting hands-on work with it.
+This project demonstrates Windows endpoint telemetry and EDR-style investigation concepts. It does **not** claim CrowdStrike, Microsoft Defender for Endpoint, SentinelOne, or another commercial EDR product, and it does not claim production SOAR or ITSM integration.
