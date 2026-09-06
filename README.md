@@ -129,6 +129,13 @@ The repository includes a focused evidence set under `screenshots/`:
 | `08-source-activity-timeline.png` | Source activity timeline |
 | `09-final-soc-dashboard.png` | Final SOC dashboard |
 
+Historical dashboard/investigation evidence is also retained to show the progression of the Splunk dashboard and alert-investigation work:
+
+- `splunk-dashboard-overview.png`
+- `splunk-dashboard-investigation.png`
+- `splunk-dashboard-analysis.png`
+- `splunk-alert-investigation.png`
+
 ## Technologies
 
 | Category | Tools / Concepts |
@@ -214,6 +221,7 @@ All scanning and security testing must be performed only against systems and net
 | [`documentation/alert-triage.md`](documentation/alert-triage.md) | L1 triage and investigation cases |
 | [`documentation/investigation-workflow.md`](documentation/investigation-workflow.md) | Investigation methodology |
 | [`documentation/incident-case-management.md`](documentation/incident-case-management.md) | Case, disposition and escalation workflow |
+| [`documentation/lab-build-and-investigation-journal.md`](documentation/lab-build-and-investigation-journal.md) | Practical lab build, validation, investigation, troubleshooting, and evidence journal |
 | [`endpoint-telemetry/README.md`](endpoint-telemetry/README.md) | Windows endpoint/Sysmon setup and investigation guide |
 | [`splunk/searches.md`](splunk/searches.md) | Network investigation SPL |
 | [`splunk/case-management.md`](splunk/case-management.md) | Case/disposition SPL |
