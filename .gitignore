@@ -29,3 +29,5 @@ __pycache__/
 .env
 *.key
 *.pem
+
+screenshots_backup/
