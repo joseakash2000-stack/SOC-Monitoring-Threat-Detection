@@ -1,12 +1,12 @@
 signature,soc_severity,cvss,cve,mitre_tactic,mitre_technique,mitre_id,threat_category,recommendation
 ET SCAN Possible Nmap User-Agent Observed,Medium,N/A,N/A,Discovery,Network Service Discovery,T1046,Network Scan,Investigate scanning activity
-ET INFO Possible Kali Linux hostname in DHCP Request Packet,Low,2.1,N/A,N/A,N/A,N/A,System Identification,Validate whether the host is expected
+ET INFO Possible Kali Linux hostname in DHCP Request Packet,Low,N/A,N/A,N/A,N/A,N/A,System Identification,Validate whether the host is expected
 ET EXPLOIT Cisco ASA and Firepower Path Traversal Vulnerability M1 (CVE-2020-3452),Critical,9.8,CVE-2020-3452,Initial Access,Exploit Public-Facing Application,T1190,Exploit Attempt,Investigate affected device
 ET EXPLOIT Cisco ASA/Firepower Unauthenticated File Read  (CVE-2020-3452) M3,Critical,9.8,CVE-2020-3452,Initial Access,Exploit Public-Facing Application,T1190,Exploit Attempt,Investigate affected device
 ET EXPLOIT Cisco RV320/RV325 Config Disclosure Attempt Inbound (CVE-2019-1653),High,8.1,CVE-2019-1653,Initial Access,Exploit Public-Facing Application,T1190,Exploit Attempt,Block source if malicious
 ET EXPLOIT D-Link DSL-2750B - OS Command Injection,Critical,9.8,CVE-2016-20017,Execution,Command and Scripting Interpreter,T1059,Command Injection,Block attacker immediately
 ET EXPLOIT F5 TMUI RCE vulnerability CVE-2020-5902 Attempt M1,Critical,9.8,CVE-2020-5902,Initial Access,Exploit Public-Facing Application,T1190,RCE Attempt,Investigate vulnerable host
 ET EXPLOIT Possible CVE-2014-3704 Drupal SQLi attempt URLENCODE 1,Critical,9.8,CVE-2014-3704,Initial Access,Exploit Public-Facing Application,T1190,SQL Injection,Investigate web server
-ET INFO HTTP POST contains pass= in cleartext,Medium,5.0,N/A,N/A,N/A,N/A,Credential Exposure,Investigate application and transport security
-ET POLICY GNU/Linux APT User-Agent Outbound likely related to package management,Informational,0,N/A,Command and Control,Application Layer Protocol,T1071,System Activity,No action required
-SOC DEMO - SSH Brute Force,Critical,8.1,N/A,Credential Access,Brute Force,T1110,Credential Attack,Investigate authentication logs and block source if malicious
+ET INFO HTTP POST contains pass= in cleartext,Medium,N/A,N/A,N/A,N/A,N/A,Credential Exposure,Investigate application and transport security
+ET POLICY GNU/Linux APT User-Agent Outbound likely related to package management,Informational,N/A,N/A,N/A,N/A,N/A,System Activity,No action required
+SOC DEMO - SSH Brute Force,Critical,N/A,N/A,Credential Access,Brute Force,T1110,Credential Attack,Investigate authentication logs and block source if malicious
