@@ -123,7 +123,7 @@ The repository includes a focused evidence set under `screenshots/`:
 | `02-l1-alert-queue.png` | L1 prioritized alert queue |
 | `03-ssh-bruteforce-investigation.png` | Enriched SSH brute-force investigation |
 | `04-nmap-correlation-investigation.png` | Nmap/source correlation |
-| `05-cisco-rv320-exploit-investigation.png` | Vulnerability/exploit alert investigation |
+| `05-cisco-asa-firepower-exploit-investigation.png` | Vulnerability/exploit alert investigation |
 | `06-windows-endpoint-detection.png` | Windows 4688 PowerShell → CMD detection |
 | `07-case-management-queue.png` | L1 case register and dispositions |
 | `08-source-activity-timeline.png` | Source activity timeline |
