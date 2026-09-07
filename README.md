@@ -1,8 +1,8 @@
-# SOC Monitoring & Threat Detection Lab
+﻿# SOC Monitoring & Threat Detection Lab
 
 <p align="center">
   <strong>Suricata + Splunk SOC L1 Home Lab</strong><br>
-  Network Detection • SIEM Monitoring • Alert Triage • Investigation • Endpoint Telemetry • MITRE ATT&CK
+  Network Detection â€¢ SIEM Monitoring â€¢ Alert Triage â€¢ Investigation â€¢ Endpoint Telemetry â€¢ MITRE ATT&CK
 </p>
 
 A controlled defensive SOC lab that demonstrates an L1 analyst workflow from network detection and SIEM ingestion through alert validation, investigation, threat enrichment, MITRE ATT&CK mapping, case handling, escalation decisions, and Windows endpoint process-creation detection.
@@ -16,36 +16,36 @@ This project brings together two investigation paths:
 ```text
 NETWORK DETECTION
 Kali / Controlled Traffic
-        ↓
+        â†“
    Suricata IDS
-        ↓
+        â†“
     EVE JSON
-        ↓
+        â†“
 Splunk Universal Forwarder
-        ↓
+        â†“
  Splunk Enterprise
-        ↓
+        â†“
 SPL + Threat Enrichment
-        ↓
+        â†“
 Alert Triage / Investigation
-        ↓
+        â†“
 MITRE ATT&CK + Case Workflow
 ```
 
 ```text
 WINDOWS ENDPOINT
 Windows Lab Endpoint
-        ↓
+        â†“
 Windows Security Auditing
-        ↓
-Event ID 4688 — Process Creation
-        ↓
+        â†“
+Event ID 4688 â€” Process Creation
+        â†“
  Splunk Enterprise
-        ↓
-PowerShell → CMD Detection
-        ↓
+        â†“
+PowerShell â†’ CMD Detection
+        â†“
 Scheduled Alert / Log Event
-        ↓
+        â†“
 L1 Triage + Case Workflow
 ```
 
@@ -54,13 +54,13 @@ The project is intentionally scoped as a **portfolio lab**, not a production SOC
 ## SOC L1 Workflow
 
 ```text
-Detect → Validate → Investigate → Classify
-   ↓
-Enrich → Map → Create / Update Case
-   ↓
+Detect â†’ Validate â†’ Investigate â†’ Classify
+   â†“
+Enrich â†’ Map â†’ Create / Update Case
+   â†“
 Escalate When Evidence Supports Incident
-   ↓
-Document → Resolve / Close
+   â†“
+Document â†’ Resolve / Close
 ```
 
 A detection is treated as an indicator for investigation, not automatic proof of compromise.
@@ -90,7 +90,7 @@ A detection is treated as an indicator for investigation, not automatic proof of
 | SSH brute force | Analyze repeated credential-attack behavior |
 | Nmap scanning | Investigate network reconnaissance / service discovery |
 | Vulnerability / exploit signatures | Investigate vulnerability-related activity |
-| PowerShell → CMD process creation | Validate Windows process telemetry and parent/child process analysis |
+| PowerShell â†’ CMD process creation | Validate Windows process telemetry and parent/child process analysis |
 
 Custom Suricata rules are maintained in `detection-rules/suricata/soc_demo.rules`.
 
@@ -121,23 +121,23 @@ The case workflow models a practical L1 process:
 
 ```text
 Alert Intake
-    ↓
+    â†“
 Validate Detection
-    ↓
+    â†“
 TP / FP / Benign / Needs Investigation
-    ↓
+    â†“
 Investigate Source / Destination / Endpoint Context
-    ↓
+    â†“
 Assign Severity
-    ↓
+    â†“
 Enrich + MITRE ATT&CK
-    ↓
+    â†“
 Create / Update Case
-    ↓
+    â†“
 Escalate When Evidence Supports Incident
-    ↓
+    â†“
 Document Findings / Actions
-    ↓
+    â†“
 Resolve / Close
 ```
 
@@ -167,7 +167,7 @@ Examples include:
 | Cisco ASA / Firepower Path Traversal | CVE-2020-3452, Critical, CVSS 9.8 | T1190 |
 | Nmap reconnaissance | Network Service Discovery | T1046 |
 | SSH brute force | Credential attack | T1110 |
-| PowerShell → CMD | Command and Scripting Interpreter | T1059 |
+| PowerShell â†’ CMD | Command and Scripting Interpreter | T1059 |
 
 ATT&CK mapping is used for behavioral context and does not by itself establish successful exploitation or compromise.
 
@@ -181,11 +181,11 @@ This demonstrates basic security automation without claiming production SOAR cap
 
 ## Investigation Examples
 
-- **Drupal SQL Injection** — CVE-2014-3704
-- **Cisco ASA / Firepower Path Traversal** — CVE-2020-3452
-- **Nmap Network Scanning** — T1046
-- **SSH Brute Force** — T1110
-- **Windows PowerShell → CMD** — Event ID 4688 / T1059
+- **Drupal SQL Injection** â€” CVE-2014-3704
+- **Cisco ASA / Firepower Path Traversal** â€” CVE-2020-3452
+- **Nmap Network Scanning** â€” T1046
+- **SSH Brute Force** â€” T1110
+- **Windows PowerShell â†’ CMD** â€” Event ID 4688 / T1059
 
 A Suricata signature indicates that traffic matched a detection condition; it does **not** independently prove successful exploitation or compromise.
 
@@ -200,7 +200,7 @@ The repository includes a focused evidence set under `screenshots/`:
 | `03-ssh-bruteforce-investigation.png` | Enriched SSH brute-force investigation |
 | `04-nmap-correlation-investigation.png` | Nmap/source correlation |
 | `05-cisco-asa-firepower-exploit-investigation.png` | Cisco ASA/Firepower vulnerability investigation |
-| `06-windows-endpoint-detection.png` | Windows 4688 PowerShell → CMD detection |
+| `06-windows-endpoint-detection.png` | Windows 4688 PowerShell â†’ CMD detection |
 | `07-case-management-queue.png` | L1 case register and dispositions |
 | `08-source-activity-timeline.png` | Source activity timeline |
 | `09-final-soc-dashboard.png` | Final SOC dashboard |
@@ -225,15 +225,15 @@ Historical dashboard/investigation screenshots are also retained to show the pro
 
 ```text
 SOC-Monitoring-Threat-Detection/
-├── detection-rules/
-├── documentation/
-├── endpoint-telemetry/
-├── mitre/
-├── screenshots/
-├── scripts/
-├── splunk/
-├── .gitignore
-└── README.md
+â”œâ”€â”€ detection-rules/
+â”œâ”€â”€ documentation/
+â”œâ”€â”€ endpoint-telemetry/
+â”œâ”€â”€ mitre/
+â”œâ”€â”€ screenshots/
+â”œâ”€â”€ scripts/
+â”œâ”€â”€ splunk/
+â”œâ”€â”€ .gitignore
+â””â”€â”€ README.md
 ```
 
 ## Skills Demonstrated
@@ -311,7 +311,7 @@ This project is created for educational, defensive security, and SOC analyst por
 
 ## Reproduce This Lab
 
-1. **Environment:** Spin up three VirtualBox VMs on a host-only network - Kali Linux (attacker), a Windows endpoint (victim/telemetry source), and Ubuntu (Suricata sensor + Splunk).
+1. **Environment:** Spin up three VirtualBox VMs on a host-only network - Kali Linux (attacker), Ubuntu (victim, running the Suricata sensor), and Windows (hosts Splunk Enterprise + the SOC dashboard, and also generates the Windows Event ID 4688 telemetry for the endpoint-detection scenario).
 2. **Suricata:** Install Suricata on the Ubuntu sensor, drop the custom rules from `detection-rules/suricata/` into `/etc/suricata/rules/`, and enable EVE JSON output in `suricata.yaml`.
 3. **Splunk:** Install Splunk Enterprise on the same box (or a second VM), then install a Splunk Universal Forwarder pointed at Suricata's `eve.json` and, on the Windows VM, at the Security event log (Event ID 4688 auditing must be enabled via Group Policy first).
 4. **Generate traffic:** From Kali, run the scans/attacks described in `mitre/attack-mapping.md` (Nmap reconnaissance, SSH brute-force, etc.) against the Windows/Ubuntu VMs.
