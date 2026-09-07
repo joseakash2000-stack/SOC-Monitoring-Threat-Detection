@@ -107,7 +107,7 @@ The alert indicates activity associated with Nmap-based network service discover
 | Field | Assessment |
 |---|---|
 | Severity | Critical |
-| CVSS | 8.1 |
+| CVSS | N/A |
 | CVE | N/A |
 | MITRE Tactic | Credential Access |
 | MITRE Technique | Brute Force |
