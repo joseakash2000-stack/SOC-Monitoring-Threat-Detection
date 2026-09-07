@@ -162,8 +162,6 @@ index=main sourcetype=suricata
 
 > High event volume does not by itself prove malicious activity. Validate the associated signatures and context before classifying a source as malicious.
 
----
-
 ## 12. Top Targeted Systems
 
 ```spl
@@ -372,7 +370,7 @@ index=main sourcetype=suricata
 | sort - _time
 ```
 
-**Expected classification:** Critical, CVSS 8.1, T1110, Credential Attack.
+**Expected classification:** Critical, CVSS N/A, T1110, Credential Attack.
 
 ---
 
