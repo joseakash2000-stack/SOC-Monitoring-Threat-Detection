@@ -349,7 +349,7 @@ index=main sourcetype=suricata
 | sort - _time
 ```
 
-**Expected classification:** Medium, CVSS 5.3, T1046, Network Scan.
+**Expected classification:** Medium, CVSS N/A, T1046, Network Scan.
 
 ## 23. SSH Brute Force
 
