@@ -2,61 +2,95 @@
 
 <p align="center">
   <strong>Suricata + Splunk SOC L1 Home Lab</strong><br>
-  Network Detection • SIEM Monitoring • Alert Triage • Case Management • Endpoint Telemetry • MITRE ATT&CK
+  Network Detection • SIEM Monitoring • Alert Triage • Investigation • Endpoint Telemetry • MITRE ATT&CK
 </p>
 
-A controlled defensive SOC lab demonstrating the analyst workflow from network detection and SIEM ingestion through alert validation, true/false-positive disposition, investigation, threat enrichment, MITRE ATT&CK mapping, escalation, case documentation, and a Windows endpoint process-creation detection.
+A controlled defensive SOC lab that demonstrates an L1 analyst workflow from network detection and SIEM ingestion through alert validation, investigation, threat enrichment, MITRE ATT&CK mapping, case handling, escalation decisions, and Windows endpoint process-creation detection.
 
 > **Environment:** Controlled virtual lab for defensive security training and SOC analyst portfolio practice.
 
-## Architecture
+## What I Built
+
+This project brings together two investigation paths:
 
 ```text
-Controlled Lab Traffic → Suricata IDS → EVE JSON Logs
-→ Splunk Universal Forwarder → Splunk Enterprise
-→ SPL Investigation + Enrichment → SOC Dashboard
-→ Alert Triage / Case / MITRE
-
-Windows Lab Endpoint → Windows Security Audit
-→ Event ID 4688 (Process Creation) → Splunk Enterprise
-→ Endpoint Detection → Alert Action → L1 Triage / MITRE / Case
+NETWORK DETECTION
+Kali / Controlled Traffic
+        ↓
+   Suricata IDS
+        ↓
+    EVE JSON
+        ↓
+Splunk Universal Forwarder
+        ↓
+ Splunk Enterprise
+        ↓
+SPL + Threat Enrichment
+        ↓
+Alert Triage / Investigation
+        ↓
+MITRE ATT&CK + Case Workflow
 ```
+
+```text
+WINDOWS ENDPOINT
+Windows Lab Endpoint
+        ↓
+Windows Security Auditing
+        ↓
+Event ID 4688 — Process Creation
+        ↓
+ Splunk Enterprise
+        ↓
+PowerShell → CMD Detection
+        ↓
+Scheduled Alert / Log Event
+        ↓
+L1 Triage + Case Workflow
+```
+
+The project is intentionally scoped as a **portfolio lab**, not a production SOC or enterprise security platform.
 
 ## SOC L1 Workflow
 
 ```text
-Detect → Validate → Investigate → Classify → Enrich → Map
-→ Create Case → Escalate When Required → Document → Close
+Detect → Validate → Investigate → Classify
+   ↓
+Enrich → Map → Create / Update Case
+   ↓
+Escalate When Evidence Supports Incident
+   ↓
+Document → Resolve / Close
 ```
 
-The project explicitly models true-positive / false-positive validation rather than treating every IDS signature as proof of compromise.
+A detection is treated as an indicator for investigation, not automatic proof of compromise.
 
 ## Key Capabilities
 
-- Suricata network threat detection and EVE JSON telemetry
-- Splunk Enterprise ingestion and SPL investigation
-- Splunk dashboard development and correlation searches
-- Alert validation and true-positive / false-positive disposition
-- Severity classification and CVSS/CVE context
-- MITRE ATT&CK mapping and threat enrichment
-- Source/destination, port, protocol and timeline analysis
-- Lightweight Splunk lookup case tracking and escalation workflow
+- Suricata IDS network detection and EVE JSON telemetry
+- Splunk Enterprise ingestion, SPL investigation, correlation and dashboarding
+- Custom Suricata detection rules for controlled lab activity
+- Alert validation and TP / FP / Benign / Needs Investigation disposition
+- CVE / CVSS threat context and lookup-based enrichment
+- MITRE ATT&CK tactic and technique mapping
+- Source, destination, port, protocol and timeline correlation
+- Lightweight Splunk lookup-based case tracking and escalation workflow
 - Windows Security Event ID 4688 process-creation monitoring
-- PowerShell-to-CMD process relationship detection in a controlled Windows lab
-- Scheduled Splunk alerting with Log Event output for alert-pipeline validation
-- Basic Python alert-processing automation
-- Nmap, Wireshark and tcpdump for controlled network validation
+- PowerShell spawning `cmd.exe` detection using parent/child process context
+- Scheduled Splunk alert validation with Log Event output
+- Basic Python CSV alert-processing automation
+- Nmap, Wireshark and tcpdump for controlled validation and investigation
 
 ## Detection Coverage
 
-| Scenario | Purpose |
+| Scenario | Analyst Use |
 |---|---|
-| ICMP / HTTP activity | Validate basic network visibility |
-| SSH access | Detect inbound SSH activity |
-| SSH brute force | Investigate repeated credential-attack behavior |
-| Nmap scanning | Analyze reconnaissance / Network Service Discovery |
-| Vulnerability / exploit signatures | Investigate vulnerability-related network activity |
-| PowerShell → CMD process creation | Validate Windows endpoint process telemetry and L1 triage |
+| ICMP / HTTP activity | Validate network visibility and ingestion |
+| SSH access | Detect and investigate inbound SSH activity |
+| SSH brute force | Analyze repeated credential-attack behavior |
+| Nmap scanning | Investigate network reconnaissance / service discovery |
+| Vulnerability / exploit signatures | Investigate vulnerability-related activity |
+| PowerShell → CMD process creation | Validate Windows process telemetry and parent/child process analysis |
 
 Custom Suricata rules are maintained in `detection-rules/suricata/soc_demo.rules`.
 
@@ -68,48 +102,90 @@ Primary network telemetry:
 index=main sourcetype=suricata
 ```
 
-Reusable SPL covers event volume, severity, sources, targets, ports, protocols, source/destination correlation, signature-specific investigation, lookup-based enrichment, alert disposition, case tracking, and Windows Event ID 4688 endpoint investigation.
+The repository contains reusable SPL for:
+
+- Event volume and severity distribution
+- Alert categories and trends
+- Top sources, targets and destination ports
+- Source/destination correlation
+- Signature-specific investigation
+- CVE/CVSS and MITRE enrichment
+- Alert disposition and case tracking
+- Windows Event ID 4688 endpoint investigation
 
 See [`splunk/searches.md`](splunk/searches.md), [`splunk/case-management.md`](splunk/case-management.md), and [`splunk/endpoint-detections.md`](splunk/endpoint-detections.md).
 
 ## Alert Triage & Case Management
 
+The case workflow models a practical L1 process:
+
 ```text
-Alert Intake → Validate Detection
-→ TP / FP / Benign / Needs Investigation
-→ Investigate Context → Assign Severity
-→ Enrich + MITRE → Create / Update Case
-→ Escalate When Evidence Supports Incident
-→ Document → Resolve / Close
+Alert Intake
+    ↓
+Validate Detection
+    ↓
+TP / FP / Benign / Needs Investigation
+    ↓
+Investigate Source / Destination / Endpoint Context
+    ↓
+Assign Severity
+    ↓
+Enrich + MITRE ATT&CK
+    ↓
+Create / Update Case
+    ↓
+Escalate When Evidence Supports Incident
+    ↓
+Document Findings / Actions
+    ↓
+Resolve / Close
 ```
 
-The case-management layer is deliberately a **simulation**. It does not claim ServiceNow, Jira, SOAR, or production ITSM integration.
+The repository documents three representative lab cases: SSH brute force, Nmap reconnaissance, and a controlled Windows PowerShell-to-CMD process-creation test. The case register is a **lightweight portfolio simulation** implemented with Splunk lookup data; it does not claim ServiceNow, Jira, SOAR, or production ITSM integration.
 
 See [`documentation/incident-case-management.md`](documentation/incident-case-management.md).
 
 ## Windows Endpoint Detection
 
-The verified endpoint implementation uses native Windows Security auditing and Event ID 4688 rather than claiming a commercial EDR integration.
+The verified endpoint implementation uses native Windows Security auditing and **Event ID 4688 (Process Creation)** rather than claiming a commercial EDR platform.
 
-The demonstrated detection identifies **PowerShell spawning `cmd.exe`** and extracts the user, new process, creator process, and process IDs from Event ID 4688.
+The demonstrated detection identifies **PowerShell spawning `cmd.exe`** and extracts the user, new process, creator process, and process IDs from Event ID 4688. The controlled test was classified as **Benign/Expected** because it was intentionally generated to validate the detection.
 
-The controlled test was classified as **Benign/Expected** because it was intentionally generated to validate the detection. The evidence does not establish a malicious command line or compromise.
-
-The repository also contains a Sysmon setup/investigation guide as an optional extension. Sysmon event IDs are not presented as successfully ingested telemetry unless they are actually observed in the lab.
+A Sysmon setup/investigation guide is retained as an **optional extension**. Sysmon events are not presented as successfully ingested portfolio telemetry unless they are actually observed in the lab.
 
 See [`endpoint-telemetry/README.md`](endpoint-telemetry/README.md) and [`splunk/endpoint-detections.md`](splunk/endpoint-detections.md).
 
+## Threat Enrichment & MITRE ATT&CK
+
+Selected detections are enriched with CVE, CVSS, threat category, MITRE tactic, technique and ATT&CK ID where the mapping is supported by the observed behavior or detection context.
+
+Examples include:
+
+| Investigation | Context | ATT&CK |
+|---|---|---|
+| Drupal SQL Injection | CVE-2014-3704, Critical, CVSS 9.8 | T1190 |
+| Cisco ASA / Firepower Path Traversal | CVE-2020-3452, Critical, CVSS 9.8 | T1190 |
+| Nmap reconnaissance | Network Service Discovery | T1046 |
+| SSH brute force | Credential attack | T1110 |
+| PowerShell → CMD | Command and Scripting Interpreter | T1059 |
+
+ATT&CK mapping is used for behavioral context and does not by itself establish successful exploitation or compromise.
+
+See [`mitre/attack-mapping.md`](mitre/attack-mapping.md).
+
 ## Python Automation
 
-`scripts/ioc_log_processor.py` provides a small defensive automation exercise for exported alert CSV data. It validates fields, normalizes severity into review priority, identifies Critical/High records for review, and produces a case-ready CSV. This demonstrates basic security automation without claiming production SOAR capability.
+`scripts/ioc_log_processor.py` provides a small defensive automation exercise for exported alert CSV data. It validates fields, normalizes severity into review priority, identifies Critical/High records for review, and produces a case-ready CSV.
 
-## Example Investigations
+This demonstrates basic security automation without claiming production SOAR capability.
 
-- Drupal SQL Injection — CVE-2014-3704
-- Cisco ASA / Firepower Path Traversal — CVE-2020-3452
-- Nmap Network Scanning
-- SSH Brute Force
-- Windows PowerShell → CMD process creation — Event ID 4688
+## Investigation Examples
+
+- **Drupal SQL Injection** — CVE-2014-3704
+- **Cisco ASA / Firepower Path Traversal** — CVE-2020-3452
+- **Nmap Network Scanning** — T1046
+- **SSH Brute Force** — T1110
+- **Windows PowerShell → CMD** — Event ID 4688 / T1059
 
 A Suricata signature indicates that traffic matched a detection condition; it does **not** independently prove successful exploitation or compromise.
 
@@ -123,18 +199,13 @@ The repository includes a focused evidence set under `screenshots/`:
 | `02-l1-alert-queue.png` | L1 prioritized alert queue |
 | `03-ssh-bruteforce-investigation.png` | Enriched SSH brute-force investigation |
 | `04-nmap-correlation-investigation.png` | Nmap/source correlation |
-| `05-cisco-asa-firepower-exploit-investigation.png` | Vulnerability/exploit alert investigation |
+| `05-cisco-asa-firepower-exploit-investigation.png` | Cisco ASA/Firepower vulnerability investigation |
 | `06-windows-endpoint-detection.png` | Windows 4688 PowerShell → CMD detection |
 | `07-case-management-queue.png` | L1 case register and dispositions |
 | `08-source-activity-timeline.png` | Source activity timeline |
 | `09-final-soc-dashboard.png` | Final SOC dashboard |
 
-Historical dashboard/investigation evidence is also retained to show the progression of the Splunk dashboard and alert-investigation work:
-
-- `splunk-dashboard-overview.png`
-- `splunk-dashboard-investigation.png`
-- `splunk-dashboard-analysis.png`
-- `splunk-alert-investigation.png`
+Historical dashboard/investigation screenshots are also retained to show the progression of the Splunk dashboard and investigation work.
 
 ## Technologies
 
@@ -142,7 +213,7 @@ Historical dashboard/investigation evidence is also retained to show the progres
 |---|---|
 | SIEM | Splunk Enterprise, Splunk Universal Forwarder, SPL |
 | Network Detection | Suricata IDS |
-| Endpoint Telemetry | Windows Security Event Logs, Event ID 4688; Sysmon guide/extension |
+| Endpoint Telemetry | Windows Security Event Logs, Event ID 4688; Sysmon optional guide |
 | Network Analysis | Wireshark, tcpdump, Nmap |
 | Operating Systems | Windows, Kali Linux, Ubuntu |
 | Virtualization | VirtualBox |
@@ -172,18 +243,18 @@ SOC-Monitoring-Threat-Detection/
 - True-positive / false-positive analysis
 - Security event investigation
 - Incident documentation
-- Escalation decision-making
+- Evidence-based escalation decisions
 - Detection engineering fundamentals
 - Threat enrichment
 - MITRE ATT&CK mapping
 
 ### SIEM
 - Splunk data ingestion
-- SPL searches
-- Correlation and filtering
+- SPL searches and filtering
+- Correlation and investigation pivots
 - Lookup-based enrichment
 - Dashboard development
-- Alert investigation and scheduled alerting
+- Scheduled alert validation
 - Case/disposition tracking
 
 ### Network Security
@@ -199,17 +270,17 @@ SOC-Monitoring-Threat-Detection/
 - Process creation analysis
 - Parent/child process investigation
 - PowerShell-to-CMD detection
-- EDR/XDR investigation concepts
+- EDR-style investigation concepts without claiming commercial EDR deployment
 
 ### Automation
 - Python CSV processing
-- Basic security alert normalization
+- Security alert normalization and prioritization
 
 ## Scope & Limitations
 
 This is a **controlled defensive training environment**, not a production SOC deployment.
 
-The project does not claim enterprise EDR, SOAR, ServiceNow/Jira integration, or production incident-management controls. The case register is a lightweight portfolio simulation. The verified endpoint detection uses Windows Security Event ID 4688; the Sysmon directory provides an optional setup/investigation guide and should not be interpreted as proof of successfully ingested Sysmon telemetry.
+The project does not claim enterprise EDR, SOAR, ServiceNow/Jira integration, or production incident-management controls. Case tracking is implemented as a lightweight Splunk lookup workflow. Sysmon is documented as an optional extension rather than verified portfolio telemetry.
 
 All scanning and security testing must be performed only against systems and networks where explicit authorization exists.
 
@@ -221,8 +292,7 @@ All scanning and security testing must be performed only against systems and net
 | [`documentation/alert-triage.md`](documentation/alert-triage.md) | L1 triage and investigation cases |
 | [`documentation/investigation-workflow.md`](documentation/investigation-workflow.md) | Investigation methodology |
 | [`documentation/incident-case-management.md`](documentation/incident-case-management.md) | Case, disposition and escalation workflow |
-| [`documentation/lab-build-and-investigation-journal.md`](documentation/lab-build-and-investigation-journal.md) | Practical lab build, validation, investigation, troubleshooting, and evidence journal |
-| [`endpoint-telemetry/README.md`](endpoint-telemetry/README.md) | Windows endpoint/Sysmon setup and investigation guide |
+| [`endpoint-telemetry/README.md`](endpoint-telemetry/README.md) | Windows 4688 endpoint and optional Sysmon guide |
 | [`splunk/searches.md`](splunk/searches.md) | Network investigation SPL |
 | [`splunk/case-management.md`](splunk/case-management.md) | Case/disposition SPL |
 | [`splunk/endpoint-detections.md`](splunk/endpoint-detections.md) | Windows 4688 endpoint detection SPL |
