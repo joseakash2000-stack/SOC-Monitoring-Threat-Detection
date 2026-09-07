@@ -308,3 +308,13 @@ GitHub: `joseakash2000-stack`
 ## Disclaimer
 
 This project is created for educational, defensive security, and SOC analyst portfolio purposes. Perform all testing only in systems and networks where explicit authorization exists.
+
+## Reproduce This Lab
+
+1. **Environment:** Spin up three VirtualBox VMs on a host-only network - Kali Linux (attacker), a Windows endpoint (victim/telemetry source), and Ubuntu (Suricata sensor + Splunk).
+2. **Suricata:** Install Suricata on the Ubuntu sensor, drop the custom rules from `detection-rules/suricata/` into `/etc/suricata/rules/`, and enable EVE JSON output in `suricata.yaml`.
+3. **Splunk:** Install Splunk Enterprise on the same box (or a second VM), then install a Splunk Universal Forwarder pointed at Suricata's `eve.json` and, on the Windows VM, at the Security event log (Event ID 4688 auditing must be enabled via Group Policy first).
+4. **Generate traffic:** From Kali, run the scans/attacks described in `mitre/attack-mapping.md` (Nmap reconnaissance, SSH brute-force, etc.) against the Windows/Ubuntu VMs.
+5. **Investigate:** Use the SPL searches in `splunk/searches.md` to triage the resulting alerts, following the workflow in `documentation/investigation-workflow.md`.
+
+Adjust IPs, interface names, and Splunk index names to match your own environment.
