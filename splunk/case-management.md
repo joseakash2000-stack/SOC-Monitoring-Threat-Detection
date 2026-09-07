@@ -1,6 +1,6 @@
 # Splunk Case Management & Alert Disposition
 
-This document adds a lightweight case-management layer to the SOC Monitoring lab using Splunk lookup files. It is intentionally simple so the workflow can be demonstrated without claiming a production ITSM integration.
+This document adds a lightweight case-management layer to the SOC Monitoring lab using Splunk lookup files. It is intentionally simple so the L1 workflow can be demonstrated without claiming a production ITSM integration.
 
 ## 1. Case Register
 
@@ -9,10 +9,11 @@ Create a lookup named `soc_case_register.csv` with these columns:
 ```csv
 case_id,alert_time,signature,src_ip,dest_ip,dest_port,initial_severity,disposition,status,mitre_id,escalation,analyst_notes,recommended_action
 SOC-2026-001,2026-08-08T10:15:00,SOC DEMO - SSH Brute Force,192.168.1.16,192.168.1.11,22,Critical,True Positive,Closed,T1110,Yes,Repeated SSH attack pattern reviewed in controlled lab,Review authentication logs and escalate if compromise is suspected
-SOC-2026-002,2026-08-08T10:30:00,ET SCAN Possible Nmap User-Agent Observed,192.168.1.16,192.168.1.11,80,Medium,Benign / Expected,Closed,T1046,No,Authorized lab scan confirmed,Document as expected activity
+SOC-2026-002,2026-08-08T10:30:00,ET SCAN Possible Nmap User-Agent Observed,192.168.1.16,192.168.1.11,80,Medium,Needs Investigation,Closed,T1046,No,Repeated reconnaissance activity correlated in Splunk; authorization should be validated,Confirm scanner authorization and correlate related activity
+SOC-2026-003,N/A,PowerShell Spawned CMD,N/A,N/A,N/A,Medium,Benign / Expected,Closed,T1059,No,Controlled Windows Event ID 4688 process-creation test,No escalation for controlled validation; investigate real-world occurrences with endpoint context
 ```
 
-These are example lab records. Replace timestamps and addresses with the evidence from your own environment before presenting them as personal investigation results.
+These records correspond to the representative lab cases documented in `documentation/incident-case-management.md`. The endpoint test intentionally uses `N/A` for network fields because the documented detection is based on Windows Event ID 4688 rather than a network flow. Replace or supplement these example values with the exact evidence from the live Splunk environment when maintaining the project.
 
 ## 2. Enriched Alert Queue
 
